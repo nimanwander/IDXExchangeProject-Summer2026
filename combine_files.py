@@ -1,23 +1,30 @@
 import pandas as pd
+import os
 
-sold1 = pd.read_csv('CRMLSSold202601.csv')    #num of rows: 16487
-sold2 = pd.read_csv('CRMLSSold202602.csv')    #num of rows: 19010
-sold3 = pd.read_csv('CRMLSSold202603.csv')    #num of rows: 23372
-sold4 = pd.read_csv('CRMLSSold202604.csv')    #num of rows: 24261
-sold = pd.concat([sold1, sold2, sold3, sold4])
-#sold number of rows before filtering is 83130
-#sold number of rows after filtering is 54592
+sold_dfs = []
+listing_dfs= []
 
-listing1 = pd.read_csv('CRMLSListing202601.csv')    #num of rows: 35302
-listing2 = pd.read_csv('CRMLSListing202602.csv')    #num of rows: 32884
-listing3 = pd.read_csv('CRMLSListing202603.csv')    #num of rows: 39153
-listing4 = pd.read_csv('CRMLSListing202604.csv')    #num of rows: 39020
-listing = pd.concat([listing1, listing2, listing3, listing4])
-#listing number of rows before filtering is 146359
-#listing number of rows after filtering is 95035
+for year in range (2024,2027):
+    for month in range (1,13):
+        sold_file = f"CRMLSSold{year}{month:02d}.csv"
+        listing_file = f"CRMLSListing{year}{month:02d}.csv"
+    
+        if os.path.exists(sold_file):
+            sold_dfs.append(pd.read_csv(sold_file, low_memory=False))
+        if os.path.exists(listing_file):
+            listing_dfs.append(pd.read_csv(listing_file, low_memory=False))
+
+sold = pd.concat(sold_dfs, ignore_index=True)
+listing = pd.concat(listing_dfs,ignore_index=True)
+
+print(f'Number of rows in concated sold file before filtering: {len(sold)}')
+print(f'Number of rows in concated listing file before filtering: {len(listing)}')
 
 sold_filtered = sold[sold['PropertyType'] == 'Residential']
 listing_filtered = listing[listing['PropertyType'] == 'Residential']
 
-sold_filtered.to_csv('Sold2026.csv', index=False)
-listing_filtered.to_csv('Listing2026.csv', index=False)
+print(f'Number of rows in filtered concated sold file: {len(sold_filtered)}')
+print(f'Number of rows in filtered concated listing file: {len(listing_filtered)}')
+
+sold_filtered.to_csv('Sold.csv', index=False)
+listing_filtered.to_csv('Listing.csv', index=False)
